@@ -30,7 +30,6 @@ static inline BOOL _checkResultLite(OSStatus result, const char *operation, cons
     BOOL            _cancelled;
     BOOL            _interrupted;
     NSCondition    *_condition;
-    UInt32          _priorMixOverrideValue;
 }
 @property (nonatomic, readwrite, retain) NSString *source;
 @property (nonatomic, readwrite, retain) NSString *destination;
@@ -116,16 +115,6 @@ static inline BOOL _checkResultLite(OSStatus result, const char *operation, cons
 }
 
 -(void)start {
-    UInt32 size = sizeof(_priorMixOverrideValue);
-    checkResult(AudioSessionGetProperty(kAudioSessionProperty_OverrideCategoryMixWithOthers, &size, &_priorMixOverrideValue), 
-                "AudioSessionGetProperty(kAudioSessionProperty_OverrideCategoryMixWithOthers)");
-    
-    if ( _priorMixOverrideValue != NO ) {
-        UInt32 allowMixing = NO;
-        checkResult(AudioSessionSetProperty(kAudioSessionProperty_OverrideCategoryMixWithOthers, sizeof (allowMixing), &allowMixing),
-                    "AudioSessionSetProperty(kAudioSessionProperty_OverrideCategoryMixWithOthers)");
-    }
-    
     _cancelled = NO;
     _processing = YES;
     [self retain];
@@ -136,11 +125,6 @@ static inline BOOL _checkResultLite(OSStatus result, const char *operation, cons
     _cancelled = YES;
     while ( _processing ) {
         [NSThread sleepForTimeInterval:0.01];
-    }
-    if ( _priorMixOverrideValue != NO ) {
-        UInt32 allowMixing = _priorMixOverrideValue;
-        checkResult(AudioSessionSetProperty(kAudioSessionProperty_OverrideCategoryMixWithOthers, sizeof (allowMixing), &allowMixing),
-                    "AudioSessionSetProperty(kAudioSessionProperty_OverrideCategoryMixWithOthers)");
     }
     [self autorelease];
 }
@@ -166,22 +150,12 @@ static inline BOOL _checkResultLite(OSStatus result, const char *operation, cons
 - (void)reportCompletion {
     if ( _cancelled ) return;
     [_delegate AACAudioConverterDidFinishConversion:self];
-    if ( _priorMixOverrideValue != NO ) {
-        UInt32 allowMixing = _priorMixOverrideValue;
-        checkResult(AudioSessionSetProperty(kAudioSessionProperty_OverrideCategoryMixWithOthers, sizeof (allowMixing), &allowMixing),
-                    "AudioSessionSetProperty(kAudioSessionProperty_OverrideCategoryMixWithOthers)");
-    }
     [self autorelease];
 }
 
 - (void)reportErrorAndCleanup:(NSError*)error {
     if ( _cancelled ) return;
     [[NSFileManager defaultManager] removeItemAtPath:_destination error:NULL];
-    if ( _priorMixOverrideValue != NO ) {
-        UInt32 allowMixing = _priorMixOverrideValue;
-        checkResult(AudioSessionSetProperty(kAudioSessionProperty_OverrideCategoryMixWithOthers, sizeof (allowMixing), &allowMixing),
-                    "AudioSessionSetProperty(kAudioSessionProperty_OverrideCategoryMixWithOthers)");
-    }
     [self autorelease];
     [_delegate AACAudioConverter:self didFailWithError:error];
 }
@@ -224,8 +198,17 @@ static inline BOOL _checkResultLite(OSStatus result, const char *operation, cons
     
     AudioStreamBasicDescription destinationFormat;
     memset(&destinationFormat, 0, sizeof(destinationFormat));
+
+    // set destination format for lup AAC -> PCM conversion
+    destinationFormat.mFormatID = kAudioFormatLinearPCM;
+    destinationFormat.mSampleRate = sourceFormat.mSampleRate;
     destinationFormat.mChannelsPerFrame = sourceFormat.mChannelsPerFrame;
-    destinationFormat.mFormatID = kAudioFormatMPEG4AAC;
+    destinationFormat.mBitsPerChannel = 16;
+    destinationFormat.mBytesPerFrame = 2;
+    destinationFormat.mBytesPerPacket = destinationFormat.mBytesPerFrame * destinationFormat.mChannelsPerFrame;
+    destinationFormat.mFramesPerPacket = 1;
+    destinationFormat.mFormatFlags = kLinearPCMFormatFlagIsPacked | kLinearPCMFormatFlagIsSignedInteger; // little-endian
+
     UInt32 size = sizeof(destinationFormat);
     if ( !checkResult(AudioFormatGetProperty(kAudioFormatProperty_FormatInfo, 0, NULL, &size, &destinationFormat), 
                       "AudioFormatGetProperty(kAudioFormatProperty_FormatInfo)") ) {
@@ -240,7 +223,7 @@ static inline BOOL _checkResultLite(OSStatus result, const char *operation, cons
     }
     
     ExtAudioFileRef destinationFile;
-    if ( !checkResult(ExtAudioFileCreateWithURL((CFURLRef)[NSURL fileURLWithPath:_destination], kAudioFileM4AType, &destinationFormat, NULL, kAudioFileFlags_EraseFile, &destinationFile), "ExtAudioFileCreateWithURL") ) {
+    if ( !checkResult(ExtAudioFileCreateWithURL((CFURLRef)[NSURL fileURLWithPath:_destination], kAudioFileCAFType, &destinationFormat, NULL, kAudioFileFlags_EraseFile, &destinationFile), "ExtAudioFileCreateWithURL") ) {
         [self performSelectorOnMainThread:@selector(reportErrorAndCleanup:)
                                withObject:[NSError errorWithDomain:TPAACAudioConverterErrorDomain
                                                               code:TPAACAudioConverterFileError
@@ -250,22 +233,10 @@ static inline BOOL _checkResultLite(OSStatus result, const char *operation, cons
         _processing = NO;
         return;
     }
-    
-    AudioStreamBasicDescription clientFormat;
-    if ( sourceFormat.mFormatID == kAudioFormatLinearPCM ) {
-        clientFormat = sourceFormat;
-    } else {
-        memset(&clientFormat, 0, sizeof(clientFormat));
-        int sampleSize = sizeof(AudioSampleType);
-        clientFormat.mFormatID = kAudioFormatLinearPCM;
-        clientFormat.mFormatFlags = kAudioFormatFlagsCanonical;
-        clientFormat.mBitsPerChannel = 8 * sampleSize;
-        clientFormat.mChannelsPerFrame = sourceFormat.mChannelsPerFrame;
-        clientFormat.mFramesPerPacket = 1;
-        clientFormat.mBytesPerPacket = clientFormat.mBytesPerFrame = sourceFormat.mChannelsPerFrame * sampleSize;
-        clientFormat.mSampleRate = sourceFormat.mSampleRate;
-    }
-    
+
+    // set the client format - The format must be linear PCM (kAudioFormatLinearPCM)
+    // You must set this in order to encode or decode a non-PCM file data format
+    AudioStreamBasicDescription clientFormat = destinationFormat;
     size = sizeof(clientFormat);
     if ( (sourceFile && !checkResult(ExtAudioFileSetProperty(sourceFile, kExtAudioFileProperty_ClientDataFormat, size, &clientFormat), 
                       "ExtAudioFileSetProperty(sourceFile, kExtAudioFileProperty_ClientDataFormat")) ||
@@ -333,8 +304,8 @@ static inline BOOL _checkResultLite(OSStatus result, const char *operation, cons
         } else {
             NSUInteger length = bufferByteSize;
             [_dataSource AACAudioConverter:self nextBytes:srcBuffer length:&length];
-            numFrames = length / clientFormat.mBytesPerFrame;
-            fillBufList.mBuffers[0].mDataByteSize = length;
+            numFrames = (UInt32)length / clientFormat.mBytesPerFrame;
+            fillBufList.mBuffers[0].mDataByteSize = (UInt32)length;
         }
         
         if ( !numFrames ) {

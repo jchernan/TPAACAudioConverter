@@ -1,6 +1,18 @@
 Objective-C wrapper for AAC audio conversion
 ============================================
 
+This fork modifies [michaeltyson/TPAACAudioConverter](https://github.com/michaeltyson/TPAACAudioConverter) to perform AAC to PCM conversion. It also assumes that this code will be used with a nonmixable category like `AVAudioSessionCategoryPlayback`:
+
+    NSError *error = nil;
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    [session setCategory:AVAudioSessionCategoryPlayback error:&error]
+    
+The sample project has been updated to match the new `TPAACAudioConverter` and to remove usage of methods deprecated in iOS 6.0 and iOS 7.0. The contents of the original README file are left intact below.
+
+
+Original README
+===============
+
 TPAACAudioConverter is a simple Objective-C class that performs the conversion of any audio file to an AAC-encoded m4a, asynchronously with a delegate, or converts any audio provided by a data source class (which provides for recording straight to AAC).
 
 

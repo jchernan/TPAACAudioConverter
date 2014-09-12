@@ -34,7 +34,8 @@ static void interruptionListener(void *inClientData, UInt32 inInterruption)
 	
 	if (inInterruption == kAudioSessionEndInterruption) {
 		// make sure we are again the active session
-		checkResult(AudioSessionSetActive(true), "resume audio session");
+        NSError *deactivationError = nil;
+		[[AVAudioSession sharedInstance] setActive:YES error:&deactivationError];
         if ( THIS->audioConverter ) [THIS->audioConverter resume];
 	}
 	
@@ -80,7 +81,7 @@ static void interruptionListener(void *inClientData, UInt32 inInterruption)
         audioPlayer = nil;
         [(UIButton*)sender setTitle:@"Play original" forState:UIControlStateNormal];
     } else {
-        audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"audio" withExtension:@"aiff"] error:NULL];
+        audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"aac-44100Hz-64kbps" withExtension:@"caf"] error:NULL];
         [audioPlayer play];
         
         [(UIButton*)sender setTitle:@"Stop" forState:UIControlStateNormal];
@@ -96,11 +97,14 @@ static void interruptionListener(void *inClientData, UInt32 inInterruption)
                            otherButtonTitles:NSLocalizedString(@"OK", @""), nil] autorelease] show];
         return;
     }
-    
+
+    NSError *error = nil;
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+
     // Initialise audio session, and register an interruption listener, important for AAC conversion
-    if ( !checkResult(AudioSessionInitialize(NULL, NULL, interruptionListener, self), "initialise audio session") ) {
+    if ( ![session setCategory:AVAudioSessionCategoryPlayback error:&error] ) {
         [[[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Converting audio", @"")
-                                     message:NSLocalizedString(@"Couldn't initialise audio session!", @"")
+                                     message:NSLocalizedString(@"Couldn't setup audio category!", @"")
                                     delegate:nil
                            cancelButtonTitle:nil
                            otherButtonTitles:NSLocalizedString(@"OK", @""), nil] autorelease] show];
@@ -109,10 +113,9 @@ static void interruptionListener(void *inClientData, UInt32 inInterruption)
     
     
     // Set up an audio session compatible with AAC conversion.  Note that AAC conversion is incompatible with any session that provides mixing with other device audio.
-    UInt32 audioCategory = kAudioSessionCategory_MediaPlayback;
-    if ( !checkResult(AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(audioCategory), &audioCategory), "setup session category") ) {
+    if ( ![session setActive:YES error:&error] ) {
         [[[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Converting audio", @"")
-                                     message:NSLocalizedString(@"Couldn't setup audio category!", @"")
+                                     message:NSLocalizedString(@"Couldn't initialise audio session!", @"")
                                     delegate:nil
                            cancelButtonTitle:nil
                            otherButtonTitles:NSLocalizedString(@"OK", @""), nil] autorelease] show];
@@ -121,8 +124,8 @@ static void interruptionListener(void *inClientData, UInt32 inInterruption)
     
     NSArray *documentsFolders = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     audioConverter = [[[TPAACAudioConverter alloc] initWithDelegate:self 
-                                                             source:[[NSBundle mainBundle] pathForResource:@"audio" ofType:@"aiff"]
-                                                        destination:[[documentsFolders objectAtIndex:0] stringByAppendingPathComponent:@"audio.m4a"]] autorelease];
+                                                             source:[[NSBundle mainBundle] pathForResource:@"aac-44100Hz-64kbps" ofType:@"caf"]
+                                                        destination:[[documentsFolders objectAtIndex:0] stringByAppendingPathComponent:@"pcm.caf"]] autorelease];
     ((UIButton*)sender).enabled = NO;
     [self.spinner startAnimating];
     self.progressView.progress = 0.0;
@@ -139,7 +142,7 @@ static void interruptionListener(void *inClientData, UInt32 inInterruption)
         [(UIButton*)sender setTitle:@"Play converted" forState:UIControlStateNormal];
     } else {
         NSArray *documentsFolders = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-        NSString *path = [[documentsFolders objectAtIndex:0] stringByAppendingPathComponent:@"audio.m4a"];
+        NSString *path = [[documentsFolders objectAtIndex:0] stringByAppendingPathComponent:@"pcm.caf"];
         audioPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:path] error:NULL];
         [audioPlayer play];
         
@@ -149,16 +152,16 @@ static void interruptionListener(void *inClientData, UInt32 inInterruption)
 
 - (IBAction)emailConverted:(id)sender {
     NSArray *documentsFolders = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *path = [[documentsFolders objectAtIndex:0] stringByAppendingPathComponent:@"audio.m4a"];
+    NSString *path = [[documentsFolders objectAtIndex:0] stringByAppendingPathComponent:@"pcm.caf"];
     
     MFMailComposeViewController *mailController = [[MFMailComposeViewController alloc] init];
     mailController.mailComposeDelegate = self;
     [mailController setSubject:NSLocalizedString(@"Recording", @"")];
     [mailController addAttachmentData:[NSData dataWithContentsOfMappedFile:path] 
-                             mimeType:@"audio/mp4a-latm"
+                             mimeType:@"audio/l16"
                              fileName:[path lastPathComponent]];
     
-    [self presentModalViewController:mailController animated:YES];
+    [self presentViewController:mailController animated:YES completion:nil];
 }
 
 #pragma mark - Audio converter delegate
@@ -189,7 +192,7 @@ static void interruptionListener(void *inClientData, UInt32 inInterruption)
 #pragma mark - Mail composer delegate
 
 -(void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
-    [self dismissModalViewControllerAnimated:YES];
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 @end

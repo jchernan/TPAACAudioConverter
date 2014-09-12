@@ -16,11 +16,12 @@
 		278EC9341347D0E800E4253C /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 278EC9321347D0E800E4253C /* MainWindow.xib */; };
 		278EC9371347D0E800E4253C /* AACConverterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 278EC9361347D0E800E4253C /* AACConverterViewController.m */; };
 		278EC93A1347D0E800E4253C /* AACConverterViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 278EC9381347D0E800E4253C /* AACConverterViewController.xib */; };
-		278EC9441347D1C000E4253C /* audio.aiff in Resources */ = {isa = PBXBuildFile; fileRef = 278EC9431347D1C000E4253C /* audio.aiff */; };
 		278EC9461347D26600E4253C /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 278EC9451347D26600E4253C /* AudioToolbox.framework */; };
 		278EC9481347D27200E4253C /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 278EC9471347D27200E4253C /* MessageUI.framework */; };
 		278EC94A1347D28700E4253C /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 278EC9491347D28700E4253C /* AVFoundation.framework */; };
 		4CDAB87614004F18003DC23B /* TPAACAudioConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CDAB87514004F18003DC23B /* TPAACAudioConverter.m */; };
+		B91124AC19C2DCDA00B87F99 /* aac-44100Hz-64kbps.caf in Resources */ = {isa = PBXBuildFile; fileRef = B91124AB19C2DCDA00B87F99 /* aac-44100Hz-64kbps.caf */; };
+		B91124AE19C2E1D900B87F99 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B91124AD19C2E1D900B87F99 /* Default-568h@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,12 +39,13 @@
 		278EC9351347D0E800E4253C /* AACConverterViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AACConverterViewController.h; sourceTree = "<group>"; };
 		278EC9361347D0E800E4253C /* AACConverterViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AACConverterViewController.m; sourceTree = "<group>"; };
 		278EC9391347D0E800E4253C /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/AACConverterViewController.xib; sourceTree = "<group>"; };
-		278EC9431347D1C000E4253C /* audio.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = audio.aiff; sourceTree = "<group>"; };
 		278EC9451347D26600E4253C /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		278EC9471347D27200E4253C /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
 		278EC9491347D28700E4253C /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		4CDAB87414004F18003DC23B /* TPAACAudioConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPAACAudioConverter.h; sourceTree = SOURCE_ROOT; };
 		4CDAB87514004F18003DC23B /* TPAACAudioConverter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TPAACAudioConverter.m; sourceTree = SOURCE_ROOT; };
+		B91124AB19C2DCDA00B87F99 /* aac-44100Hz-64kbps.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "aac-44100Hz-64kbps.caf"; sourceTree = "<group>"; };
+		B91124AD19C2E1D900B87F99 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 		278EC9111347D0E500E4253C = {
 			isa = PBXGroup;
 			children = (
+				B91124AD19C2E1D900B87F99 /* Default-568h@2x.png */,
 				278EC9261347D0E700E4253C /* AACConverter */,
 				278EC91F1347D0E600E4253C /* Frameworks */,
 				278EC91D1347D0E600E4253C /* Products */,
@@ -112,11 +115,11 @@
 		278EC9271347D0E700E4253C /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				B91124AB19C2DCDA00B87F99 /* aac-44100Hz-64kbps.caf */,
 				278EC9281347D0E700E4253C /* AACConverter-Info.plist */,
 				278EC9291347D0E700E4253C /* InfoPlist.strings */,
 				278EC92C1347D0E700E4253C /* AACConverter-Prefix.pch */,
 				278EC92D1347D0E700E4253C /* main.m */,
-				278EC9431347D1C000E4253C /* audio.aiff */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -146,6 +149,9 @@
 /* Begin PBXProject section */
 		278EC9131347D0E600E4253C /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0600;
+			};
 			buildConfigurationList = 278EC9161347D0E600E4253C /* Build configuration list for PBXProject "AACConverter" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
@@ -170,8 +176,9 @@
 			files = (
 				278EC92B1347D0E700E4253C /* InfoPlist.strings in Resources */,
 				278EC9341347D0E800E4253C /* MainWindow.xib in Resources */,
+				B91124AC19C2DCDA00B87F99 /* aac-44100Hz-64kbps.caf in Resources */,
+				B91124AE19C2E1D900B87F99 /* Default-568h@2x.png in Resources */,
 				278EC93A1347D0E800E4253C /* AACConverterViewController.xib in Resources */,
-				278EC9441347D1C000E4253C /* audio.aiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -222,7 +229,6 @@
 		278EC93B1347D0E800E4253C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -231,7 +237,8 @@
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -239,13 +246,12 @@
 		278EC93C1347D0E800E4253C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;
 			};
@@ -259,6 +265,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "AACConverter/AACConverter-Prefix.pch";
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "AACConverter/AACConverter-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -272,6 +279,7 @@
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "AACConverter/AACConverter-Prefix.pch";
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "AACConverter/AACConverter-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALIDATE_PRODUCT = YES;

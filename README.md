@@ -9,6 +9,9 @@ This fork modifies [michaeltyson/TPAACAudioConverter](https://github.com/michael
     
 The sample project has been updated to match the new `TPAACAudioConverter` and to remove usage of methods deprecated in iOS 6.0 and iOS 7.0. The contents of the original README file are left intact below.
 
+## License
+
+Code released under the [MIT license](https://github.com/jchernan/TPAACAudioConverter/blob/master/LICENSE).
 
 Original README
 ===============

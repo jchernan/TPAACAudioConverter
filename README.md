@@ -1,13 +1,14 @@
 Objective-C wrapper for AAC audio conversion
 ============================================
 
-This fork modifies [michaeltyson/TPAACAudioConverter](https://github.com/michaeltyson/TPAACAudioConverter) to perform AAC to PCM conversion. It also assumes that this code will be used with a nonmixable category like `AVAudioSessionCategoryPlayback`:
+This fork of [michaeltyson/TPAACAudioConverter](https://github.com/michaeltyson/TPAACAudioConverter) modifies the original code to perform AAC to PCM audio data conversion. AAC audio files are smaller and thus faster to download or stream. An application can then use this version of `TPAACAudioConverter` to convert AAC audio files to PCM audio data. Raw PCM format is more suitable to play in iOS, through OpenAL for example.
+ 
+This version of `TPAACAudioConverter` assumes that the `AVAudioSession` will be set up with a non-mixable category like `AVAudioSessionCategoryPlayback`. It also requires handling interruptions by registering to `AVAudioSessionInterruptionNotification`.
 
-    NSError *error = nil;
-    AVAudioSession *session = [AVAudioSession sharedInstance];
-    [session setCategory:AVAudioSessionCategoryPlayback error:&error]
-    
 The sample project has been updated to match the new `TPAACAudioConverter` and to remove usage of methods deprecated in iOS 6.0 and iOS 7.0. The contents of the original README file are left intact below.
+
+- [Sample usage in Objective-C](https://gist.github.com/jchernan/6a20bae45f49b8ff9380#file-tpaacaudioconverter_objective-c-m)
+- [Sample usage in Swift](https://gist.github.com/jchernan/1937b4373464d8dd84ae#file-tpaacaudioconverter_swift-swift)
 
 ## License
 
